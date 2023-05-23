@@ -1,0 +1,19 @@
+{
+  "snippets": [
+    {
+      "name": "Lenny Face",
+      "code": "( ͡° ͜ʖ ͡°)",
+      "description": "Inserts a Lenny Face"
+    },
+    {
+      "name": "Table Flip",
+      "code": "(╯°□°）╯︵ ┻━┻",
+      "description": "Inserts a table flip emoticon"
+    },
+    {
+      "name": "Shrug",
+      "code": "¯\\_(ツ)_/¯",
+      "description": "Inserts a shrug emoticon"
+    }
+  ]
+}
