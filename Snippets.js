@@ -1,74 +1,82 @@
-// ==UserScript==
-// @name         Snippets Script by Lukynnn
-// @website    lukynnn.tk
-// @version      1.0.0
-// @description  Custom snippets for BetterDiscord
-// @author       Lukynnn
-// ==/UserScript==
+/**
+ * @name Snippets script
+ * @author Lukynnn
+ * @authorID 985867939649552394
+ * @description Snippets script for BetterDiscord
+ * @website https://lukynnn.tk
+ * @source https://github.com/Lukynnnn/Snippets
+ * @version 1.0.0
+ */
 
-// Load snippets configuration from Snippets.config.json file
-function loadSnippetsConfig(callback) {
-  const xhr = new XMLHttpRequest();
-  xhr.overrideMimeType("application/json");
-  xhr.open("GET", "Snippets.config.json", true);
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      const snippetsConfig = JSON.parse(xhr.responseText);
-      callback(snippetsConfig);
-    }
-  };
-  xhr.send(null);
-}
-
-// Insert a snippet into the chat input
-function insertSnippet(snippet) {
-  const textarea = document.querySelector(".channelTextArea-2ACPy6 textarea");
-  if (textarea) {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const value = textarea.value;
-    const textBefore = value.substring(0, start);
-    const textAfter = value.substring(end, value.length);
-    const insertedText = `${snippet.code} `;
-    textarea.value = `${textBefore}${insertedText}${textAfter}`;
-    textarea.selectionStart = textarea.selectionEnd = start + insertedText.length;
-    textarea.focus();
+module.exports = class SnippetsPlugin {
+  start() {
+    this.injectSnippetMenu();
   }
-}
 
-// Create a snippet button element
-function createSnippetButton(snippet) {
-  const button = document.createElement("button");
-  button.textContent = snippet.name;
-  button.title = snippet.description;
-  button.className = "snippet-button";
-  button.addEventListener("click", () => insertSnippet(snippet));
-  return button;
-}
+  stop() {
+    this.removeSnippetMenu();
+  }
 
-// Inject snippet buttons into the chat input area
-function injectSnippetButtons(snippets) {
-  const messageEditor = document.querySelector(".channelTextArea-2ACPy6");
-  if (!messageEditor) return;
+  injectSnippetMenu() {
+    const createMenuItem = (label, onClick) => {
+      const menuItem = document.createElement("div");
+      menuItem.className = "item-1Yvehc";
+      menuItem.textContent = label;
+      menuItem.addEventListener("click", onClick);
+      return menuItem;
+    };
 
-  const existingButtons = document.querySelectorAll(".snippet-button");
-  existingButtons.forEach((button) => button.remove());
+    const createSnippetSubMenu = () => {
+      const snippetSubMenu = document.createElement("div");
+      snippetSubMenu.className = "itemGroup-1tL0uz";
 
-  const buttonContainer = document.createElement("div");
-  buttonContainer.className = "snippet-button-container";
+      snippetSubMenu.appendChild(createMenuItem("Lenny Face", () => this.insertSnippet("( ͡° ͜ʖ ͡°)")));
+      snippetSubMenu.appendChild(createMenuItem("Table Flip", () => this.insertSnippet("(╯°□°）╯︵ ┻━┻")));
+      snippetSubMenu.appendChild(createMenuItem("Shrug", () => this.insertSnippet("¯\\_(ツ)_/¯")));
 
-  snippets.forEach((snippet) => {
-    const button = createSnippetButton(snippet);
-    buttonContainer.appendChild(button);
-  });
+      return snippetSubMenu;
+    };
 
-  messageEditor.appendChild(buttonContainer);
-}
+    const insertContextMenu = (element) => {
+      element.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        const snippetSubMenu = createSnippetSubMenu();
 
-// Wait for DOMContentLoaded event before injecting snippet buttons
-document.addEventListener("DOMContentLoaded", () => {
-  loadSnippetsConfig((snippetsConfig) => {
-    const snippets = snippetsConfig.snippets;
-    injectSnippetButtons(snippets);
-  });
-});
+        const existingContextMenu = document.querySelector(".contextMenu-uoJTbz");
+        if (existingContextMenu) {
+          const existingSubMenu = existingContextMenu.querySelector(".itemGroup-1tL0uz");
+          if (existingSubMenu) {
+            existingSubMenu.appendChild(snippetSubMenu);
+          }
+        }
+      });
+    };
+
+    const messageEditor = document.querySelector(".channelTextArea-2ACPy6");
+    if (messageEditor) {
+      insertContextMenu(messageEditor);
+    }
+  }
+
+  removeSnippetMenu() {
+    const snippetSubMenu = document.querySelector(".itemGroup-1tL0uz");
+    if (snippetSubMenu) {
+      snippetSubMenu.remove();
+    }
+  }
+
+  insertSnippet(text) {
+    const textarea = document.querySelector(".channelTextArea-2ACPy6 textarea");
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      const textBefore = value.substring(0, start);
+      const textAfter = value.substring(end, value.length);
+      const insertedText = `${text} `;
+      textarea.value = `${textBefore}${insertedText}${textAfter}`;
+      textarea.selectionStart = textarea.selectionEnd = start + insertedText.length;
+      textarea.focus();
+    }
+  }
+};
